@@ -1,5 +1,7 @@
 # GradeGoal
 
+[Open live app](https://kanishksaini-007.github.io/GradeGoal/)
+
 **Know your next move.** A focused, private grade planner that turns your scores so far into a clear target for what's left.
 
 An original vanilla HTML/CSS/JavaScript web app with an editorial blue-and-paper visual identity. No build, account or backend.
