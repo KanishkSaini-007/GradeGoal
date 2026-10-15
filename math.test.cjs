@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),{calculate:c,validate}=require('./logic.js');let n=0;function test(name,fn){fn();n++;console.log('✓',name);}const near=(a,b)=>assert(Math.abs(a-b)<1e-8);
+test('weighted final target',()=>near(c([{weight:20,score:90},{weight:30,score:72},{weight:50,score:null}],80).required,80.8));
+test('zero is completed, not missing',()=>near(c([{weight:50,score:0},{weight:50,score:null}],40).required,80));
+test('multiple remaining components use weighted average',()=>near(c([{weight:25,score:80},{weight:25,score:null},{weight:50,score:null}],80).required,80));
+test('impossible goal',()=>assert.equal(c([{weight:80,score:10},{weight:20,score:null}],80).status,'impossible'));
+test('secured goal',()=>assert.equal(c([{weight:80,score:100},{weight:20,score:null}],75).status,'secured'));
+test('completed and missed goal',()=>assert.equal(c([{weight:100,score:60}],80).status,'impossible'));
+test('completed and met goal',()=>assert.equal(c([{weight:100,score:80}],80).status,'secured'));
+test('100% required is possible',()=>near(c([{weight:50,score:60},{weight:50,score:null}],80).required,100));
+test('weights must total 100',()=>assert.throws(()=>c([{weight:50,score:80}],80)));
+test('reject invalid numbers',()=>{for(const x of [-1,101,NaN,Infinity])assert.throws(()=>c([{weight:100,score:x}],80));assert.throws(()=>c([{weight:100,score:null}],NaN));assert.throws(()=>c([{weight:0,score:null},{weight:100,score:null}],80));});
+test('zero target secured',()=>assert.equal(c([{weight:100,score:null}],0).status,'secured'));
+test('backup validation',()=>{assert.throws(()=>validate({version:1,subjects:[]}));assert.throws(()=>validate({version:1,subjects:[{name:'X',target:80,rows:[{name:'A',weight:101,score:null}]}]}));});
+test('1000 targets reconstruct correctly',()=>{for(let k=1;k<=1000;k++){const w=10+k%80,score=k%101,target=(k*7)%101;const r=c([{weight:w,score},{weight:100-w,score:null}],target);if(r.status==='possible')near(r.earned+r.required*r.remaining/100,target);near(r.maximum,r.earned+r.remaining);}});
+console.log(n+' tests passed');
